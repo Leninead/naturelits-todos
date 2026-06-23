@@ -53,16 +53,22 @@ section{padding:34px 0}
 h2{font-family:'Fraunces',serif; font-weight:600; font-size:1.5rem; color:var(--negro); letter-spacing:-.01em}
 .snote{font-size:.82rem; color:var(--gris); margin-left:auto; max-width:340px; text-align:right}
 
-/* ── ToDos · cards de decisión ── */
+/* ── filtro de semana (dropdown) ── */
+.wkfilter{display:flex; align-items:center; gap:8px; margin-bottom:18px}
+.wkfilter label{font-size:.74rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--gris)}
+.wkfilter select{font-family:inherit; font-size:.86rem; font-weight:600; color:var(--tinta); background:var(--papel); border:1px solid var(--linea); border-radius:8px; padding:7px 12px; cursor:pointer}
+.wkfilter select:focus{outline:none; border-color:var(--naranja-2)}
+
+/* ── ToDos · cards de decisión (molde ASESOR) ── */
 .todos{display:flex; flex-direction:column; gap:14px}
 .todo{background:var(--papel); border:1px solid var(--linea); border-left:4px solid var(--naranja); border-radius:14px; padding:18px 20px}
 .todo .th{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px}
 .todo .ttema{font-family:'Fraunces',serif; font-weight:600; font-size:1.12rem; color:var(--negro)}
-.todo .tq{font-size:.92rem; color:var(--tinta); font-weight:600; margin-bottom:8px}
-.todo .tctx{font-size:.86rem; color:var(--gris); line-height:1.55; margin-bottom:10px}
-.todo .topts{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px}
-.topt{font-size:.78rem; font-weight:600; color:var(--naranja); background:var(--naranja-pal); border:1px solid var(--naranja-bd); border-radius:8px; padding:5px 11px}
-.todo .tnotes{font-size:.82rem; color:var(--tinta); font-style:italic; border-left:2px solid var(--naranja-bd); padding-left:10px; margin-top:8px}
+.todo .tsit{font-size:.88rem; color:var(--tinta); line-height:1.55; margin-bottom:10px}
+.todo .tlectura{font-size:.86rem; color:var(--tinta); line-height:1.55; margin-bottom:10px; background:var(--naranja-pal); border:1px solid var(--naranja-bd); border-radius:10px; padding:10px 12px}
+.todo .tlectura b{display:block; font-size:.62rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--naranja); margin-bottom:4px}
+.todo .tnecesito{font-size:.84rem; color:var(--tinta); line-height:1.5; border-left:3px solid #c9b3e8; padding-left:11px; margin-top:8px}
+.todo .tnecesito b{display:block; font-size:.62rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#5a3b8a; margin-bottom:3px}
 .todo .tmeta{display:flex; gap:8px; align-items:center; margin-left:auto; flex-wrap:wrap}
 .badge{font-size:.66rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:99px}
 .b-pend{color:var(--ambar); background:var(--ambar-bg)}
@@ -157,6 +163,10 @@ footer b{color:var(--tinta)}
       <span class="snum">03</span><h2>Bitácora de gestión</h2>
       <div class="snote">Qué se hizo · razón de negocio · nota QA/técnica</div>
     </div>
+    <div class="wkfilter">
+      <label for="bitaWeek">Semana</label>
+      <select id="bitaWeek"><option value="ALL">Todas las semanas</option></select>
+    </div>
     <div class="feed" id="bita"></div>
   </section>
 
@@ -208,7 +218,26 @@ function setStatus(mode){
   else {d.className="dot local"; t.textContent="Sin conexión a la Sheet"}
 }
 
-/* ── ToDos ── */
+/* ── Semana ISO (lunes-domingo) desde 'YYYY-MM-DD' → clave + etiqueta ── */
+const MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function weekInfo(fechaStr){
+  const m=String(fechaStr||"").trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return null;
+  const d=new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
+  const dow=(d.getUTCDay()+6)%7;            // 0=lunes
+  const mon=new Date(d); mon.setUTCDate(d.getUTCDate()-dow);
+  const sun=new Date(mon); sun.setUTCDate(mon.getUTCDate()+6);
+  const key=mon.toISOString().slice(0,10);  // clave ordenable = lunes
+  const dd=x=>x.getUTCDate();
+  let label;
+  if(mon.getUTCMonth()===sun.getUTCMonth())
+    label=`${dd(mon)}-${dd(sun)} ${MESES[mon.getUTCMonth()]}`;
+  else
+    label=`${dd(mon)} ${MESES[mon.getUTCMonth()]}-${dd(sun)} ${MESES[sun.getUTCMonth()]}`;
+  return {key,label};
+}
+
+/* ── ToDos (molde ASESOR: Tema · Situación · Mi lectura/recomendación · Qué necesito de Roger · Estado · Fecha) ── */
 function renderToDos(rows){
   const el=document.getElementById("todos");
   rows=cleanRows(rows);
@@ -216,20 +245,20 @@ function renderToDos(rows){
   el.innerHTML=rows.map(r=>{
     const estado=(r.Estado||"").trim();
     const eb = /hecho|cerrad|resuelt/i.test(estado) ? "b-hecho" : "b-pend";
-    const opts=(r.Opciones||"").split(/·|\|/).map(o=>o.trim()).filter(Boolean);
+    const sit=r["Situación"]||r["Situacion"]||"";
+    const lect=r["Mi lectura / recomendación"]||r["Mi lectura / recomendacion"]||r["Mi lectura/recomendación"]||r["Mi lectura/recomendacion"]||"";
+    const nec=r["Qué necesito de Roger"]||r["Que necesito de Roger"]||"";
     return `<div class="todo">
       <div class="th">
         <span class="ttema">${esc(r.Tema)}</span>
         <span class="tmeta">
           ${estado?`<span class="badge ${eb}">${esc(estado)}</span>`:""}
-          ${r.Decide?`<span class="badge b-decide">${esc(r.Decide)}</span>`:""}
           ${r.Fecha?`<span class="tfecha">${esc(r.Fecha)}</span>`:""}
         </span>
       </div>
-      ${r["Decisión/Pregunta"]?`<div class="tq">${esc(r["Decisión/Pregunta"])}</div>`:""}
-      ${r.Contexto?`<div class="tctx">${esc(r.Contexto)}</div>`:""}
-      ${opts.length?`<div class="topts">${opts.map(o=>`<span class="topt">${esc(o)}</span>`).join("")}</div>`:""}
-      ${r["Notas/decisión"]?`<div class="tnotes">${esc(r["Notas/decisión"])}</div>`:""}
+      ${sit?`<div class="tsit">${esc(sit)}</div>`:""}
+      ${lect?`<div class="tlectura"><b>Mi lectura / recomendación</b>${esc(lect)}</div>`:""}
+      ${nec?`<div class="tnecesito"><b>Qué necesito de Roger</b>${esc(nec)}</div>`:""}
     </div>`;
   }).join("");
 }
@@ -280,11 +309,11 @@ function renderDiag(rows){
   el.innerHTML=html;
 }
 
-/* ── Bitácora ── */
+/* ── Bitácora (con filtro por semana) ── */
+let BITA_ROWS=[];
 function renderBita(rows){
   const el=document.getElementById("bita");
-  rows=cleanRows(rows);
-  if(!rows.length){ el.innerHTML='<div class="emptyst">Sin bitácora cargada</div>'; return; }
+  if(!rows.length){ el.innerHTML='<div class="emptyst">Sin bitácora en esta semana</div>'; return; }
   const sorted=rows.slice().sort((a,b)=>String(b.Fecha||"").localeCompare(String(a.Fecha||"")));
   el.innerHTML=sorted.map(r=>{
     const estado=(r.Estado||"").trim();
@@ -300,6 +329,23 @@ function renderBita(rows){
     </div>`;
   }).join("");
 }
+function buildBitaFilter(rows){
+  const sel=document.getElementById("bitaWeek");
+  // mapa key→label de las semanas presentes, ordenado desc (más reciente primero)
+  const map=new Map();
+  rows.forEach(r=>{ const w=weekInfo(r.Fecha); if(w && !map.has(w.key)) map.set(w.key,w.label); });
+  const keys=[...map.keys()].sort((a,b)=>b.localeCompare(a));
+  sel.innerHTML='<option value="ALL">Todas las semanas</option>'
+    + keys.map(k=>`<option value="${k}">${esc(map.get(k))}</option>`).join("");
+  // default: la semana más reciente si existe
+  if(keys.length){ sel.value=keys[0]; }
+  sel.onchange=()=>applyBitaFilter(sel.value);
+  applyBitaFilter(sel.value);
+}
+function applyBitaFilter(key){
+  if(key==="ALL"){ renderBita(BITA_ROWS); return; }
+  renderBita(BITA_ROWS.filter(r=>{ const w=weekInfo(r.Fecha); return w && w.key===key; }));
+}
 
 /* ── Boot ── */
 async function boot(){
@@ -314,7 +360,7 @@ async function boot(){
     let ok=0;
     if(todos){ renderToDos(todos); ok++; } else renderToDos([]);
     if(diag){ renderDiag(diag); ok++; } else renderDiag([]);
-    if(bita){ renderBita(bita); ok++; } else renderBita([]);
+    if(bita){ BITA_ROWS=cleanRows(bita); buildBitaFilter(BITA_ROWS); ok++; } else { BITA_ROWS=[]; renderBita([]); }
     mode = ok===0 ? "local" : ok===names.length ? "live" : "parcial";
     if(res.some(r=>r.status==="rejected")) console.warn("Tabs no cargadas:", res.map((r,i)=>r.status==="rejected"?names[i]:null).filter(Boolean).join(", "));
   }
