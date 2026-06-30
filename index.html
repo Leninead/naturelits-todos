@@ -110,6 +110,15 @@ h2{font-family:'Fraunces',serif; font-weight:600; font-size:1.5rem; color:var(--
 .ap-hecho{color:var(--verde); background:var(--verde-bg)}
 .ap-abierto{color:var(--ambar); background:var(--ambar-bg)}
 
+/* ── Plan estratégico · tabla ── */
+.ptable{width:100%; border-collapse:collapse; font-size:.84rem; background:var(--papel); border:1px solid var(--linea); border-radius:12px; overflow:hidden}
+.ptable th{text-align:left; font-size:.64rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--naranja); background:var(--naranja-pal); padding:10px 12px; border-bottom:1px solid var(--naranja-bd); white-space:nowrap}
+.ptable td{padding:11px 12px; border-top:1px solid var(--linea); color:var(--tinta); vertical-align:top; line-height:1.5}
+.ptable tr.dep-cliente{background:var(--ambar-bg)}
+.ptable .pdep{font-weight:600; white-space:nowrap}
+.ptable .pfase{font-family:'Fraunces',serif; font-weight:600; color:var(--negro); white-space:nowrap}
+@media(max-width:760px){ .ptable{display:block; overflow-x:auto} }
+
 .emptyst{padding:30px; text-align:center; color:var(--gris); background:var(--papel); border:1px dashed var(--linea); border-radius:12px; font-size:.88rem}
 
 footer{padding:34px 0 60px; color:var(--gris); font-size:.78rem; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; border-top:1px solid var(--linea); margin-top:20px}
@@ -140,6 +149,7 @@ footer b{color:var(--tinta)}
     <button class="tab active" data-target="todos">ToDos · decisiones</button>
     <button class="tab" data-target="diag">Diagnóstico 360</button>
     <button class="tab" data-target="bita">Bitácora</button>
+    <button class="tab" data-target="plan">Plan estratégico</button>
   </nav>
 
   <section class="panel active" data-tab="todos">
@@ -168,6 +178,14 @@ footer b{color:var(--tinta)}
       <select id="bitaWeek"><option value="ALL">Todas las semanas</option></select>
     </div>
     <div class="feed" id="bita"></div>
+  </section>
+
+  <section class="panel" data-tab="plan">
+    <div class="shead">
+      <span class="snum">04</span><h2>Plan estratégico</h2>
+      <div class="snote">Fase · frente · dependencias · impacto · estado</div>
+    </div>
+    <div id="plan"></div>
   </section>
 
   <footer>
@@ -347,20 +365,47 @@ function applyBitaFilter(key){
   renderBita(BITA_ROWS.filter(r=>{ const w=weekInfo(r.Fecha); return w && w.key===key; }));
 }
 
+/* ── Plan estratégico (tabla: Fase · Frente · Qué hacer · Depende de · Por qué/Impacto · Estado) ── */
+function renderPlan(rows){
+  const el=document.getElementById("plan");
+  rows=cleanRows(rows);
+  if(!rows.length){ el.innerHTML='<div class="emptyst">Sin plan estratégico cargado</div>'; return; }
+  el.innerHTML=`<table class="ptable">
+    <thead><tr>
+      <th>Fase</th><th>Frente</th><th>Qué hacer</th><th>Depende de</th><th>Por qué / Impacto</th><th>Estado</th>
+    </tr></thead>
+    <tbody>${rows.map(r=>{
+      const dep=r["Depende de"]||"";
+      const estado=(r.Estado||"").trim();
+      const eb=/hecho|cerrad|resuelt|list/i.test(estado)?"b-hecho":"b-pend";
+      const depCli=/cliente/i.test(dep);
+      return `<tr${depCli?' class="dep-cliente"':''}>
+        <td class="pfase">${esc(r.Fase)}</td>
+        <td>${esc(r.Frente)}</td>
+        <td>${esc(r["Qué hacer"]||r["Que hacer"])}</td>
+        <td class="pdep">${esc(dep)}</td>
+        <td>${esc(r["Por qué / Impacto"]||r["Por que / Impacto"]||r["Por qué/Impacto"])}</td>
+        <td>${estado?`<span class="badge ${eb}">${esc(estado)}</span>`:""}</td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
+}
+
 /* ── Boot ── */
 async function boot(){
   document.getElementById("ftDate").innerHTML =
     "Generado el <b>"+new Date().toLocaleDateString("es-ES",{day:"numeric",month:"long",year:"numeric"})+"</b>";
   let mode="local";
   if(SHEET_ID){
-    const names=["ToDos","Diagnostico_360","Bitacora"];
+    const names=["ToDos","Diagnostico_360","Bitacora","Plan_estrategico"];
     const res=await Promise.allSettled(names.map(n=>fetchSheet(n)));
     const val=i=>res[i].status==="fulfilled"?res[i].value:null;
-    const todos=val(0), diag=val(1), bita=val(2);
+    const todos=val(0), diag=val(1), bita=val(2), plan=val(3);
     let ok=0;
     if(todos){ renderToDos(todos); ok++; } else renderToDos([]);
     if(diag){ renderDiag(diag); ok++; } else renderDiag([]);
     if(bita){ BITA_ROWS=cleanRows(bita); buildBitaFilter(BITA_ROWS); ok++; } else { BITA_ROWS=[]; renderBita([]); }
+    if(plan){ renderPlan(plan); ok++; } else renderPlan([]);
     mode = ok===0 ? "local" : ok===names.length ? "live" : "parcial";
     if(res.some(r=>r.status==="rejected")) console.warn("Tabs no cargadas:", res.map((r,i)=>r.status==="rejected"?names[i]:null).filter(Boolean).join(", "));
   }
