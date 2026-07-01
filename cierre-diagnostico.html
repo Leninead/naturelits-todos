@@ -111,6 +111,25 @@
   .takeaway{margin-top:20px;padding:14px 16px;background:#F1EEE6;border-left:3px solid var(--cuello);border-radius:0 4px 4px 0;font-size:14px}
   .takeaway b{color:var(--ink)}
 
+  /* bloque tesis quirúrgica — el corazón del análisis */
+  .thesis-box{margin-top:26px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:clamp(20px,3vw,30px);position:relative;overflow:hidden}
+  .thesis-box::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(var(--cuello),var(--sano))}
+  .thesis-box .tb-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:14px}
+  .thesis-box .tb-lead{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(18px,2.5vw,23px);line-height:1.25;margin-bottom:18px;letter-spacing:-0.01em}
+  .thesis-box .tb-split{display:grid;gap:14px;margin-bottom:16px}
+  @media(min-width:600px){.thesis-box .tb-split{grid-template-columns:1fr 1fr}}
+  .tb-half{padding:15px 17px;border-radius:5px}
+  .tb-half.d{background:#EDF0F4;border:1px solid #D5DDE6}
+  .tb-half.c{background:#EDF2EE;border:1px solid #D3E2D8}
+  .tb-half .th-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+  .tb-half.d .th-tag{color:var(--demanda)}
+  .tb-half.c .th-tag{color:var(--sano)}
+  .tb-half .th-num{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:var(--ink);display:block;margin-bottom:4px}
+  .tb-half p{font-size:13px;color:var(--ink-soft)}
+  .thesis-box .tb-close{font-size:14.5px;color:var(--ink);padding-top:4px}
+  .thesis-box .tb-close b{color:var(--cuello)}
+  .thesis-box .tb-close .g{color:var(--sano);font-weight:600}
+
   /* ===== METHOD TABLE ===== */
   .method{background:var(--panel);border:1px solid var(--line);border-radius:5px;overflow:hidden}
   .mrow{display:grid;grid-template-columns:150px 1fr;gap:0;border-top:1px solid var(--line)}
@@ -169,6 +188,8 @@
   .unlock .kick{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8E958C;margin-bottom:16px}
   .unlock h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(22px,3.6vw,30px);line-height:1.14;margin-bottom:8px;color:#fff}
   .unlock .u-dek{color:#B9BEB4;max-width:60ch;margin-bottom:24px;font-size:14.5px}
+  .unlock .u-dek strong{color:#fff;font-weight:600}
+  .phase-tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8FCDAC;border:1px solid rgba(143,205,172,.35);border-radius:3px;padding:2px 8px;margin-bottom:16px}
   .frentes{display:grid;gap:12px;margin-bottom:24px}
   @media(min-width:640px){.frentes{grid-template-columns:repeat(3,1fr)}}
   .frente{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:15px 16px}
@@ -276,6 +297,24 @@
         <b>Serene concentra el 83% de la demanda del foco y convierte 1,86%.</b> Xstar convierte el doble (3,82%) pero mueve el 3% del tráfico. Y lo que más convierte —Moon y Orbit, 3,6–4,3%— está fuera por margen. La demanda vive donde no cerramos; la conversión vive donde no hay volumen.
       </div>
     </div>
+
+    <div class="thesis-box">
+      <div class="tb-eyebrow">El corazón del análisis</div>
+      <div class="tb-lead">El cuello no es "el foco no convierte". Es más preciso — y el dato lo prueba con número, en vez de un rango que se cae.</div>
+      <div class="tb-split">
+        <div class="tb-half d">
+          <div class="th-tag">Donde hay demanda</div>
+          <span class="th-num">0,3 – 1,9%</span>
+          <p>Las medidas de demanda masiva (135 / 150 / 90) en Serene, Nature y Palace concentran casi todo el tráfico — y convierten entre 0,3% y 1,9%.</p>
+        </div>
+        <div class="tb-half c">
+          <div class="th-tag">Donde se convierte</div>
+          <span class="th-num">3,82%</span>
+          <p>Xstar visco, un nicho de poca demanda, convierte 3,82% — casi como las familias excluidas. Pero mueve una fracción del volumen.</p>
+        </div>
+      </div>
+      <p class="tb-close"><b>Donde hay demanda, no convertimos.</b> <span class="g">Donde convertimos, no hay demanda.</span> Esa es la tensión estructural de la cuenta —demanda y margen que no coinciden— ahora demostrada con el número, no afirmada. Y define exactamente dónde está la palanca: no en mover más tráfico, sino en hacer convertir la ficha donde el tráfico ya está.</p>
+    </div>
   </section>
 
   <!-- ===================== 02 MÉTODO ===================== -->
@@ -332,7 +371,7 @@
   <!-- ===================== 04 VÍAS ===================== -->
   <section id="s4">
     <div class="shead"><span class="snum">04</span><h2>Vías de crecimiento</h2></div>
-    <p class="sdek">La cuenta no está atrapada: hay cinco vías concretas de crecimiento, ya mapeadas con datos. Son munición lista — se activan en cuanto la ficha convierta, no antes (empujar tráfico a una ficha que no cierra es tirar la inversión).</p>
+    <p class="sdek">La cuenta no está atrapada: hay cinco vías concretas de crecimiento, ya mapeadas con datos. Son la <strong style="color:var(--ink)">Fase 3</strong> — munición lista que se activa en cuanto la ficha convierta, no antes (empujar tráfico a una ficha que no cierra es tirar la inversión).</p>
 
     <div class="via">
       <span class="vn">1</span>
@@ -407,8 +446,9 @@
   <div class="unlock" id="s6">
     <div class="kick">06 · Qué desbloquea el crecimiento</div>
     <h2>El PPC llegó a su techo. Lo que falta está en la ficha — y depende del cliente.</h2>
-    <p class="u-dek">El crecimiento que sigue no sale de más campañas. Sale de arreglar la conversión de la ficha, que es lo que diagnosticamos con datos. Tres frentes, uno ya entregado de nuestro lado.</p>
+    <p class="u-dek">El crecimiento que sigue no sale de más campañas. Sale de arreglar la conversión de la ficha —la <strong>Fase 2</strong> del plan—, que es lo que diagnosticamos con datos. Tres frentes, uno ya entregado de nuestro lado.</p>
 
+    <span class="phase-tag">Fase 2 · Ficha — depende del cliente</span>
     <div class="frentes">
       <div class="frente"><div class="fh"><span class="dot g"></span>Título</div><p>Optimizados y entregados de nuestro lado. Falta publicarlos. Es el frente más rápido.</p></div>
       <div class="frente"><div class="fh"><span class="dot y"></span>Reseñas</div><p>432 vs 3.500–14.000 de los líderes. El mayor diferencial de confianza — y el más lento.</p></div>
@@ -419,9 +459,9 @@
       <div class="ah">Lo que necesitamos del cliente para desbloquear</div>
       <ol>
         <li><b>Publicar los títulos optimizados</b> ya entregados.</li>
-        <li><b>Reabrir los listings Serene cerrados</b> y <b>corregir el precio de Serene</b> — es lo que destraba la conversión y, con ella, las cinco vías de crecimiento.</li>
+        <li><b>Reabrir los listings Serene cerrados</b> y <b>corregir el precio de Serene</b> — es lo que destraba la conversión y, con ella, habilita la <b>Fase 3</b> y las cinco vías de crecimiento.</li>
       </ol>
-      <div class="then">Con la ficha desbloqueada, el PPC dispara <b>rank donde el orgánico ya tracciona</b> — munición ya cargada y en pausa — y la mejora de conversión se multiplica sobre todo el tráfico, gratis y pagado. La prueba ya la vimos: un punto de ficha duplicó la venta durante el evento.</div>
+      <div class="then">Con la Fase 2 desbloqueada, arranca la <b>Fase 3</b>: el PPC dispara <b>rank donde el orgánico ya tracciona</b> — munición ya cargada y en pausa — y la mejora de conversión se multiplica sobre todo el tráfico, gratis y pagado. La prueba ya la vimos: un punto de ficha duplicó la venta durante el evento.</div>
     </div>
   </div>
 
