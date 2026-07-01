@@ -150,6 +150,7 @@ footer b{color:var(--tinta)}
     <button class="tab" data-target="diag">Diagnóstico 360</button>
     <button class="tab" data-target="bita">Bitácora</button>
     <button class="tab" data-target="plan">Plan estratégico</button>
+    <button class="tab" data-target="cierre">Cierre del diagnóstico</button>
   </nav>
 
   <section class="panel active" data-tab="todos">
@@ -186,6 +187,16 @@ footer b{color:var(--tinta)}
       <div class="snote">Fase · frente · dependencias · impacto · estado</div>
     </div>
     <div id="plan"></div>
+  </section>
+
+  <section class="panel" data-tab="cierre">
+    <div class="shead">
+      <span class="snum">05</span><h2>Cierre del diagnóstico</h2>
+      <div class="snote">Análisis del mes · pieza estática (01 jul)</div>
+    </div>
+    <iframe src="cierre-diagnostico.html" title="Cierre del diagnóstico — análisis del mes"
+            style="width:100%;border:0;min-height:1200px;display:block"
+            onload="try{this.style.height=(this.contentWindow.document.documentElement.scrollHeight+24)+'px'}catch(e){}"></iframe>
   </section>
 
   <footer>
